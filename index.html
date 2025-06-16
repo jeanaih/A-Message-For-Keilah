@@ -634,6 +634,18 @@
             color: #ffffff;
         }
 
+        .letter-text span {
+            opacity: 0;
+            display: inline-block;
+            transition: opacity 0.13s, transform 0.23s;
+            transform: translateY(10px);
+        }
+
+        .letter-text span.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         .signature {
             text-align: right;
             margin-top: 20px;
@@ -671,6 +683,10 @@
             font-size: 1rem;
             color: #999;
             font-style: italic;
+        }
+
+        #readBtn {
+            display: none;
         }
 
         .click-to-view {
@@ -880,21 +896,8 @@
             <h2 class="modal-title">A Secret Confession</h2>
 
             <div class="letter-container">
-                <div class="letter-text">
-                    <strong>Hi Keilah,</strong><br><br>
-
-                    If ever you open this message, I just want you to know that I like you. Oo, gusto kita — di ba
-                    halata? Haha. matagal na, sorry torpe lang talaga ako. I can’t help it… I just don’t
-                    know how to say it directly.<br><br>
-
-                    So I made this. Medyo nakakahiya na rin, kasi napuno ko na yung chat natin sa Messenger. And I know
-                    you’re busy — tapos ayaw mo pa akong papasukin sa server mo sa Grow A Garden haha. Pero ito
-                    seryoso na. You can say anything — if it's not ok to you, it’s okay, I understand. pwede namang
-                    friends, I just really wanted to be honest about how I feel.<br><br>
-
-                    Hope to see you soon.
-                    <br><br>
-                    <div class="signature">Ako lang ’to,<br>-Naih🐝</div>
+                <div class="letter-text" id="animatedMessage">
+                    <!-- Message will be injected by JS as spans -->
                 </div>
                 <div class="letter-decoration">
                     <i class="fas fa-heart"></i>
@@ -902,9 +905,12 @@
             </div>
 
             <div class="modal-footer">
-                Sent with love and Bear Bee in my stomach 🦋
+                Sent with love and Bear Bee in my stomach 🐝
             </div>
         </div>
+        <!-- Romantic music audio (hidden) -->
+        <audio id="romanticMusic" src="https://cdn.pixabay.com/audio/2023/02/14/audio_12c6b8e5e2.mp3"
+            preload="auto"></audio>
     </div>
 
     <script>
@@ -958,86 +964,89 @@
         const closeBtn = document.getElementById('closeBtn');
         let envelopeOpened = false;
 
-        function openEnvelopeAndModal() {
-            if (envelopeOpened) return;
-            envelopeOpened = true;
-            envelopeBtn.classList.add('open');
-            // Show fake letter, then after animation, show modal
-            setTimeout(() => {
-                modalOverlay.classList.add('active');
-                document.body.style.overflow = 'hidden';
-                createFloatingHearts();
-                // Reset envelope after modal opens for next time
-                setTimeout(() => {
-                    envelopeBtn.classList.remove('open');
-                    envelopeOpened = false;
-                }, 800);
-            }, 900);
+        // Romantic music controls
+        const romanticMusic = document.getElementById('romanticMusic');
+
+        function playRomanticMusic() {
+            if (romanticMusic) {
+                romanticMusic.currentTime = 0;
+                romanticMusic.volume = 0.5;
+                romanticMusic.play().catch(() => { });
+            }
+        }
+        function stopRomanticMusic() {
+            if (romanticMusic) {
+                romanticMusic.pause();
+                romanticMusic.currentTime = 0;
+            }
         }
 
-        envelopeBtn.addEventListener('click', openEnvelopeAndModal);
+        // Message HTML for per-letter animation
+        const messageHTML = `
+<strong>Hi Keilah,</strong><br><br>
+If ever you open this message, I just want you to know that I like you. Oo, gusto kita — di ba
+halata? Haha. It’s been a while already, sorry torpe lang talaga ako. I can’t help it… I just don’t
+know how to say it directly.<br><br>
+So I made this. Medyo nakakahiya na rin, kasi napuno ko na yung chat natin sa Messenger. And I know
+you’re busy — tapos ayaw mo pa akong papasukin sa server mo sa Grow A Garden haha. Pero ito
+seryoso na. You can say anything — if it's not ok to you, it’s okay, I understand. pwede namang
+friends, I just really wanted to be honest about how I feel.<br><br>
+Hope to see you soon.<br><br>
+<div class="signature">Ako lang ’to,<br>-Naih🐝</div>
+`;
 
-        function closeModal() {
-            modalOverlay.classList.remove('active');
-            document.body.style.overflow = 'auto';
-            document.getElementById('floatingHearts').innerHTML = '';
+        // Helper to wrap each letter in a span, preserving HTML tags and entities
+        function wrapLetters(html) {
+            let result = '';
+            let inTag = false, inEntity = false, entityBuffer = '';
+            for (let i = 0; i < html.length; i++) {
+                const c = html[i];
+                if (c === '<') inTag = true;
+                if (inTag) {
+                    result += c;
+                    if (c === '>') inTag = false;
+                    continue;
+                }
+                if (c === '&') {
+                    inEntity = true;
+                    entityBuffer = c;
+                    continue;
+                }
+                if (inEntity) {
+                    entityBuffer += c;
+                    if (c === ';') {
+                        result += `<span>${entityBuffer}</span>`;
+                        inEntity = false;
+                    }
+                    continue;
+                }
+                if (c.trim() === '') {
+                    result += c; // preserve whitespace
+                } else {
+                    result += `<span>${c}</span>`;
+                }
+            }
+            return result;
         }
 
-        closeBtn.addEventListener('click', closeModal);
-
-        modalOverlay.addEventListener('click', (e) => {
-            if (e.target === modalOverlay) {
-                closeModal();
-            }
-        });
-
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
-                closeModal();
-            }
-        });
-
-        // Add some interactive sparkle effects on mouse move
-        document.addEventListener('mousemove', (e) => {
-            if (Math.random() > 0.98) {
-                createSparkle(e.clientX, e.clientY);
-            }
-        });
-
-        function createSparkle(x, y) {
-            const sparkle = document.createElement('div');
-            sparkle.innerHTML = '<i class="fas fa-sparkles"></i>';
-            sparkle.style.position = 'fixed';
-            sparkle.style.left = x + 'px';
-            sparkle.style.top = y + 'px';
-            sparkle.style.color = '#ff6b9d';
-            sparkle.style.fontSize = '12px';
-            sparkle.style.pointerEvents = 'none';
-            sparkle.style.zIndex = '999';
-            sparkle.style.animation = 'sparkleEffect 1s ease-out forwards';
-            document.body.appendChild(sparkle);
-
-            setTimeout(() => {
-                sparkle.remove();
-            }, 1000);
+        // Animate message letters when modal opens
+        function animateMessage() {
+            const msgDiv = document.getElementById('animatedMessage');
+            msgDiv.innerHTML = wrapLetters(messageHTML);
+            const spans = msgDiv.querySelectorAll('span');
+            let delay = 0;
+            spans.forEach(span => {
+                if (span.closest('.signature') || span.closest('.letter-decoration')) {
+                    setTimeout(() => span.classList.add('visible'), delay);
+                    delay += 60;
+                } else {
+                    setTimeout(() => span.classList.add('visible'), delay);
+                    delay += 38;
+                }
+            });
         }
 
-        // Add sparkle animation
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes sparkleEffect {
-                0% { opacity: 1; transform: scale(0.5) rotate(0deg); }
-                50% { opacity: 1; transform: scale(1) rotate(180deg); }
-                100% { opacity: 0; transform: scale(0.5) rotate(360deg); }
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Initialize floating hearts on load
-        createFloatingHearts();
-
-        // Animated entrance for badge and title (per letter)
+        // Show "Click to View Message" only after subtitle animation
         document.addEventListener('DOMContentLoaded', () => {
             // Badge animation
             const badgeText = "THIS MESSAGE IS ONLY FOR";
@@ -1086,13 +1095,95 @@
             }
             const subtitleSpans = subtitle.querySelectorAll('span');
             let subtitleDelay = titleDelay + 200;
-            subtitleSpans.forEach((span) => {
+            subtitleSpans.forEach((span, idx) => {
                 setTimeout(() => {
                     span.classList.add('visible');
+                    if (idx === subtitleSpans.length - 1) {
+                        document.getElementById('readBtn').style.display = 'block';
+                    }
                 }, subtitleDelay);
                 subtitleDelay += 45;
             });
         });
+
+        function openEnvelopeAndModal() {
+            if (envelopeOpened) return;
+            envelopeOpened = true;
+            envelopeBtn.classList.add('open');
+            setTimeout(() => {
+                modalOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                createFloatingHearts();
+                animateMessage();
+                playRomanticMusic();
+                setTimeout(() => {
+                    envelopeBtn.classList.remove('open');
+                    envelopeOpened = false;
+                }, 800);
+            }, 900);
+        }
+
+        envelopeBtn.addEventListener('click', openEnvelopeAndModal);
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            document.getElementById('floatingHearts').innerHTML = '';
+            stopRomanticMusic();
+        }
+
+        closeBtn.addEventListener('click', closeModal);
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                closeModal();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        // Add some interactive sparkle effects on mouse move
+        document.addEventListener('mousemove', (e) => {
+            if (Math.random() > 0.98) {
+                createSparkle(e.clientX, e.clientY);
+            }
+        });
+
+        function createSparkle(x, y) {
+            const sparkle = document.createElement('div');
+            sparkle.innerHTML = '<i class="fas fa-sparkles"></i>';
+            sparkle.style.position = 'fixed';
+            sparkle.style.left = x + 'px';
+            sparkle.style.top = y + 'px';
+            sparkle.style.color = '#ff6b9d';
+            sparkle.style.fontSize = '12px';
+            sparkle.style.pointerEvents = 'none';
+            sparkle.style.zIndex = '999';
+            sparkle.style.animation = 'sparkleEffect 1s ease-out forwards';
+            document.body.appendChild(sparkle);
+
+            setTimeout(() => {
+                sparkle.remove();
+            }, 1000);
+        }
+
+        // Add sparkle animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes sparkleEffect {
+                0% { opacity: 1; transform: scale(0.5) rotate(0deg); }
+                50% { opacity: 1; transform: scale(1) rotate(180deg); }
+                100% { opacity: 0; transform: scale(0.5) rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize floating hearts on load
+        createFloatingHearts();
     </script>
 </body>
 
