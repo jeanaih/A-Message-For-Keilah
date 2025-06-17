@@ -587,130 +587,118 @@
             margin-bottom: 30px;
         }
 
-        .letter-container {
-            background: var(--letter-bg);
-            border-radius: 20px;
-            padding: 35px 30px;
-            box-shadow: inset 0 2px 10px rgba(255, 107, 157, 0.1);
+        /* Notebook Modal Styles */
+        .notebook-modal {
+            background: #fffbe9;
+            border-radius: 18px;
+            border: 1.5px solid #f7d6c1;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.18);
+            padding: 50px 0 30px 0;
             position: relative;
-            margin-bottom: 25px;
-            border-left: 4px solid #ff6b9d;
-            max-height: 440px;
-            overflow-y: auto;
-            transition: background 0.3s;
-            /* Hide scrollbar for all browsers */
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            min-height: 400px;
+            /* Add notebook lines to the whole modal */
+            background-image:
+                repeating-linear-gradient(to bottom,
+                    #f7e6d9 0px,
+                    #f7e6d9 38px,
+                    #eec9b7 39px,
+                    #f7e6d9 40px);
         }
 
-        .letter-container::-webkit-scrollbar {
+        body.dark .notebook-modal {
+            background: #2a192a;
+            border-color: #c44569;
+            background-image:
+                repeating-linear-gradient(to bottom,
+                    #2a192a 0px,
+                    #2a192a 38px,
+                    #c44569 39px,
+                    #2a192a 40px);
+        }
+
+        .notebook-message {
+            flex: 1 1 auto;
+            margin: 0 0 18px 0;
+            padding: 30px 40px 30px 60px;
+            font-family: 'Crimson Text', serif;
+            font-size: 1.2rem;
+            line-height: 2.1;
+            color: #2d3436;
+            /* Remove background lines from message area */
+            background: transparent;
+            border-left: 4px solid #ffb6c1;
+            border-radius: 0 12px 12px 0;
+            box-shadow: inset 0 2px 10px rgba(255, 107, 157, 0.07);
+            max-height: 440px;
+            overflow-y: auto;
+            position: relative;
+            /* Hide scrollbar for all browsers */
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE 10+ */
+        }
+
+        .notebook-message::-webkit-scrollbar {
             display: none;
             /* Chrome, Safari, Opera */
         }
 
-        body.dark .letter-container {
-            background: var(--letter-bg-dark);
-            color: #ffffff;
-        }
-
-        .letter-container {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-
-        .letter-container::-webkit-scrollbar {
-            display: none;
-        }
-
-        .letter-text {
-            font-family: 'Crimson Text', serif;
-            font-size: 1.2rem;
-            line-height: 1.8;
-            color: #2d3436;
-            padding-right: 8px;
-        }
-
-        body.dark .letter-text {
-            color: #ffffff;
-        }
-
-        .letter-text span {
-            opacity: 0;
-            display: inline-block;
-            transition: opacity 0.13s, transform 0.23s;
-            transform: translateY(10px);
-        }
-
-        .letter-text span.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .signature {
-            text-align: right;
-            margin-top: 20px;
-            font-family: 'Dancing Script', cursive;
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #ff6b9d;
-        }
-
-        .letter-decoration {
-            position: absolute;
-            right: 20px;
-            bottom: 20px;
-            font-size: 2rem;
-            color: #ff6b9d;
-            opacity: 0.3;
-            animation: heartbeat 2s infinite;
-            pointer-events: none;
-        }
-
-        @keyframes heartbeat {
-
-            0%,
-            100% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(1.1);
-            }
-        }
-
-        .modal-footer {
-            text-align: center;
-            font-size: 1rem;
-            color: #999;
-            font-style: italic;
-        }
-
-        #readBtn {
-            display: none;
-        }
-
-        .click-to-view {
-            text-align: center;
-            font-size: 0.98rem;
-            color: #c44569;
-            margin-top: -10px;
-            margin-bottom: 18px;
-            cursor: default;
-            letter-spacing: 0.5px;
-            transition: color 0.2s;
-            user-select: none;
-            font-family: 'Inter', sans-serif;
-            font-style: normal;
-            text-decoration: none;
-        }
-
-        .click-to-view:hover {
-            color: #ff6b9d;
-            text-decoration: none;
-        }
-
-        body.dark .click-to-view {
+        body.dark .notebook-message {
+            background: transparent;
             color: #fff;
+            border-left: 4px solid #c44569;
+        }
+
+        /* Notebook margin line */
+        .notebook-message::before {
+            content: "";
+            position: absolute;
+            left: 38px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #ffb6c1;
+            opacity: 0.5;
+            z-index: 1;
+        }
+
+        body.dark .notebook-message::before {
+            background: #c44569;
+        }
+
+        /* Hide old letter container */
+        .letter-container {
+            display: none !important;
+        }
+
+        /* Responsive notebook */
+        @media (max-width: 768px) {
+            .notebook-message {
+                padding: 18px 8px 18px 28px;
+                font-size: 1rem;
+                max-height: 320px;
+            }
+
+            .notebook-message::before {
+                left: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .notebook-message {
+                padding: 10px 2px 10px 14px;
+                font-size: 0.95rem;
+                max-height: 220px;
+            }
+
+            .notebook-message::before {
+                left: 8px;
+            }
         }
 
         /* Animations */
@@ -785,19 +773,6 @@
                 font-size: 2.2rem;
             }
 
-            .letter-container {
-                padding: 18px 10px;
-                max-height: 320px;
-            }
-
-            .letter-text {
-                font-size: 1rem;
-            }
-
-            .signature {
-                font-size: 1.2rem;
-            }
-
             .theme-toggle {
                 width: 50px;
                 height: 50px;
@@ -830,15 +805,6 @@
 
             .envelope-icon {
                 font-size: 2rem;
-            }
-
-            .letter-container {
-                padding: 10px 5px;
-                max-height: 220px;
-            }
-
-            .letter-text {
-                font-size: 0.95rem;
             }
         }
     </style>
@@ -888,25 +854,18 @@
 
     <!-- Enhanced Modal -->
     <div class="modal-overlay" id="modalOverlay">
-        <div class="modal">
+        <div class="modal notebook-modal">
             <button class="modal-close" id="closeBtn">
                 <i class="fas fa-times"></i>
             </button>
 
             <h2 class="modal-title">A Secret Confession</h2>
 
-            <div class="letter-container">
-                <div class="letter-text" id="animatedMessage">
-                    <!-- Message will be injected by JS as spans -->
-                </div>
-                <div class="letter-decoration">
-                    <i class="fas fa-heart"></i>
-                </div>
+            <div class="notebook-message" id="animatedMessage">
+                <!-- Message will be injected by JS as spans -->
             </div>
 
-            <div class="modal-footer">
-                Sent with love and Bear Bee in my stomach 🐝
-            </div>
+
         </div>
         <!-- Romantic music audio (hidden) -->
         <audio id="romanticMusic" src="https://cdn.pixabay.com/audio/2023/02/14/audio_12c6b8e5e2.mp3"
@@ -988,14 +947,15 @@ If ever you open this message, I just want you to know that I like you. Oo, gust
 halata? Haha. matagal na, sorry torpe lang talaga ako. I can’t help it… I just don’t
 know how to say it directly.<br><br>
 Siguro nung camp pa, happy crush ba haha, remember it's been a year na ata I sent you a starlight card pa non haha. <br><br>
-Sorry talaga, di ko talaga alam paano make a move haha, so I made this. Medyo nakakahiya na rin, kasi napuno ko na yung chat natin sa Messenger. And I know
+Sorry talaga, di ko talaga alam paano make a move haha, so I made this, just a simple frontend site na para lang sa'yo. Nakakahiya na rin, kasi napuno ko na yung chat natin sa Messenger. And I know
 you’re busy rin — tapos ayaw mo pa akong papasukin sa server mo sa Grow A Garden haha. Focus on your studies muna, and sa ojt mo pagbutihan mo.Pero ito
 seryoso, You can say anything — if it's not ok to you, it’s okay, I understand. pwede namang
 friends, I just really wanted to be honest about how I feel.<br><br>
-
+Actully I planned this matagal na, and I started to create this after nung bible study, medyo natawa lang ako sa convo natin non haha akala ko tinatanong mo kung nakuha ko ba yung topic ni pastor, yun pala yung ember lily ang tinutukoy mo. then medyo nakwento ko kay benj, and I think na exagerrate din masyado, sorry ahsha. So I finally finished this on sunday, inunti unti ko lang then sinend ko sayo to ng gabi ng sunday rin. so ayun alam ko busy ka na rin and alam kong hindi ka mamamansin o mag seseen pag busy ka and that's ok. and kung dumating na yung time na nabasa mo na to hanggang dito, congrats haha chz. Thank You <br><br>
 
 Hope to see you soon and GOD BLESS YOU!!♡<br><br>
-<div class="signature">Ako lang ’to,<br>-Naih🐝</div>
+<div class="signature">Ako lang ’to,<br>-Naih</div>
+  Sent with love and Bear Bee in my stomach 🐝
 `;
 
         // Helper to wrap each letter in a span, preserving HTML tags and entities
@@ -1039,7 +999,7 @@ Hope to see you soon and GOD BLESS YOU!!♡<br><br>
             const spans = msgDiv.querySelectorAll('span');
             let delay = 0;
             spans.forEach(span => {
-                if (span.closest('.signature') || span.closest('.letter-decoration')) {
+                if (span.closest('.signature')) {
                     setTimeout(() => span.classList.add('visible'), delay);
                     delay += 60;
                 } else {
